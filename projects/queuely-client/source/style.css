@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --color-ink-50: oklch(0.94 0.008 260);
+  --color-ink-100: oklch(0.85 0.01 260);
+  --color-ink-200: oklch(0.75 0.014 260);
+  --color-ink-300: oklch(0.65 0.014 260);
+  --color-ink-400: oklch(0.55 0.014 260);
+  --color-ink-500: oklch(0.5 0.014 260);
+  --color-ink-600: oklch(0.32 0.02 260);
+  --color-ink-700: oklch(0.28 0.018 260);
+  --color-ink-800: oklch(0.24 0.017 260);
+  --color-ink-900: oklch(0.205 0.016 260);
+  --color-ink-950: oklch(0.17 0.014 260);
+
+  --color-arrival: oklch(0.75 0.14 195);
+  --color-service: oklch(0.78 0.13 70);
+  --color-queue: oklch(0.74 0.15 305);
+  --color-backlog: oklch(0.62 0.17 25);
+  --color-event: oklch(0.88 0.05 100);
+  --color-danger: oklch(0.65 0.19 25);
+  --color-success: oklch(0.72 0.14 150);
+
+  --height-chart: 340px;
+  --height-chart-secondary: 210px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-ink-950);
+    color: var(--color-ink-50);
+    font-family: var(--font-sans);
+  }
+
+  input::placeholder {
+    color: var(--color-ink-500);
+  }
+}
