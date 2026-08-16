@@ -19,7 +19,7 @@ Out of scope:
 
 ## Technical context
 
-Consumes `λ(t)` from `demand-generator` and the integrator from `integral-analysis-engine`. Its output is consumed by `dashboard`, which orchestrates recomputation, and by `visualization`, which renders the resulting series and metrics.
+Consumes `λ(t)` from `demand-generator` and the integrator from `integral-analysis-engine`. Its output is consumed by `simulation`, which combines it with `demand-generator`'s output into one `SimulationResult` (see `simulation.spec.md`), and by `visualization`, which renders the resulting series and metrics.
 
 ## Implementation
 
@@ -27,12 +27,12 @@ Consumes `λ(t)` from `demand-generator` and the integrator from `integral-analy
 - A pure function computing the `Q(t)` series over a time grid, applying the non-negativity clip at every point.
 - A pure function finding the critical interval where `λ(t) > μ(t)`.
 - A pure function computing the backlog `D` over the critical interval, via the integration engine.
-- Lives under this slice's own feature directory in the project's feature-based source layout.
+- Lives in its own domain module.
 
 ## Acceptance criteria
 
 - [ ] `Q(t)` is never negative at any point in the computed series.
-- [ ] With the model's default parameters (amplitude 140 orders/min, peak time 40 min, width 12 min, service rate 60 orders/min, horizon 90 min — see `dashboard.spec.md`), the peak of `Q(t)` occurs strictly after `t = 40`, not at the same instant.
+- [ ] With the model's default parameters (amplitude 140 orders/min, peak time 40 min, width 12 min, service rate 60 orders/min, horizon 90 min — see `parameter-form.spec.md`), the peak of `Q(t)` occurs strictly after `t = 40`, not at the same instant.
 - [ ] With those same default parameters, `Q(t)` returns to (or reaches near) zero before `t = 90`.
 - [ ] `D` and `Q(t)` at the end of the horizon are reported as distinct values — they are complementary metrics, not the same quantity under two names.
 

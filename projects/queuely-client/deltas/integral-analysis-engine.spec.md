@@ -18,14 +18,14 @@ Out of scope:
 
 ## Technical context
 
-This is one of the four conceptual modules of the project's architecture, and the only one with no dependency on any other slice — it is deliberately generic so it can be validated independently against a function with a known analytical integral, before being trusted on the model's actual functions. It is the foundation `queue-simulator` builds on for `Q(t)` and backlog `D`, and it also supplies the average-arrival-rate metric surfaced by `dashboard`/`visualization`. Per the project's recommended build order, this slice should be implemented first.
+This is one of the four conceptual modules of the project's architecture, and the only one with no dependency on any other slice — it is deliberately generic so it can be validated independently against a function with a known analytical integral, before being trusted on the model's actual functions. It is the foundation `queue-simulator` builds on for `Q(t)` and backlog `D`, and it also supplies the average-arrival-rate metric surfaced by `visualization` via `simulation`'s orchestrated result. Per the project's recommended build order, this slice should be implemented first.
 
 ## Implementation
 
 - A pure function that approximates a definite integral with the trapezoidal rule, taking a function, an interval, and a subdivision count.
 - A pure function that approximates a definite integral with Simpson's rule, taking the same inputs. Simpson's rule requires an even subdivision count; how an odd count is handled (rounding up to the next even number vs. rejecting the input) is an implementation detail that doesn't change the contract and can be decided during implementation.
 - A pure function that computes the average value of a function over an interval, delegating to either integration method.
-- Lives under the project's feature-based source layout, in its own feature directory — it is treated as one of the four conceptual modules rather than folded into a generic shared-utilities directory, even though nothing else in it is domain-specific.
+- Lives in its own domain module — treated as one of the project's domain modules rather than folded into a generic shared-utilities directory, even though nothing else in it is domain-specific.
 
 ## Acceptance criteria
 

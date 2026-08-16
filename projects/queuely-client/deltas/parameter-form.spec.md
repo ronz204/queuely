@@ -1,8 +1,8 @@
-# Dashboard — Spec
+# Parameter Form — Spec
 
 ## Objective
 
-Provide the model's parameter inputs (Gaussian amplitude, peak time, and width; constant service rate; study horizon; integration point count) with inline validation, and orchestrate a live, debounced recomputation of the other simulation slices whenever the parameter set changes and is valid.
+Provide the model's parameter inputs (Gaussian amplitude, peak time, and width; constant service rate; study horizon; integration point count) with inline validation, and orchestrate a live, debounced recomputation via the simulation domain service whenever the parameter set changes and is valid.
 
 ## Scope
 
@@ -17,17 +17,17 @@ In scope:
   - Integration point count: must be an integer between `10` and `2000` inclusive.
 
   While any field is invalid, no recomputation happens and no output is rendered from a degenerate parameter set.
-- Reactive state holding the current parameter set.
+- Reactive state holding the current parameter set, its validation errors, and the current `SimulationResult`.
 - Debouncing the recomputation trigger so rapid successive edits to one field don't recompute on every keystroke.
 
 Out of scope:
-- The computation itself — delegated to `demand-generator`, `queue-simulator`, and `integral-analysis-engine`.
+- The computation itself — delegated to `simulation` (which in turn delegates to `demand-generator`, `queue-simulator`, and `integral-analysis-engine`); this slice only decides *when* to call it.
 - Chart rendering — delegated to `visualization`.
-- Saving scenarios — delegated to `scenario-comparison`; this slice only exposes the action that triggers a save, it doesn't own the saved list.
+- Saving scenarios — delegated to `scenario-comparison`; this slice only exposes the current `SimulationResult` for that slice to capture, it doesn't own the saved list.
 
 ## Technical context
 
-This is the application-layer piece of the architecture: parameter inputs feeding reactive state, which the simulation modules recompute from. There is no routing library and no external state-management library in this project — state here is framework-native reactivity (refs/reactive objects) composed through composables, consistent with the rest of the codebase.
+This is the application-state layer of the architecture: a Pinia store holds the raw string form input, per-field validation errors, and the current `SimulationResult`, recomputing via `simulation`'s orchestration function whenever the parsed parameter set is valid. The form component is a thin UI layer on top — one field per parameter, reading the store directly (no props/emits from a parent) and calling the store's field-update action on each edit.
 
 Default parameter values, used as the initial state and referenced by this and other slices' acceptance criteria:
 
@@ -44,10 +44,11 @@ Default parameter values, used as the initial state and referenced by this and o
 
 ## Implementation
 
-- A composable owning the reactive parameter-set state and its validation.
-- A form component, one field per parameter, each with its own inline error message.
-- A debounced reactive trigger that recomputes by calling into `demand-generator`, `queue-simulator`, and `integral-analysis-engine`, firing only when the full parameter set is valid.
-- Lives under this slice's own feature directory in the project's feature-based source layout.
+- A Pinia store owning the raw parameter-input state (one string per field), the per-field validation errors, and the current `SimulationResult`.
+- Validation logic converting the raw string input into a typed parameter set or a set of per-field error messages, colocated with the store since it's the store's own input contract.
+- A debounced trigger, owned by the store, that revalidates on every field edit and, only when the full parameter set is valid, calls `simulation`'s orchestration function and stores the result.
+- A form component, one field per parameter, each bound to the store's raw value/error for that field and calling the store's field-update action on change — reads the store directly rather than receiving state through props.
+- Lives across two layers of the project's layered source structure: the reactive state and validation in the application-state layer, the UI in the feature layer.
 
 ## Acceptance criteria
 
@@ -57,7 +58,7 @@ Default parameter values, used as the initial state and referenced by this and o
 
 ## How to test
 
-Manually in the browser: open the dashboard, set the width parameter to a negative value, and confirm an inline error appears under that field and no chart update occurs. Restore a valid width and confirm the charts update automatically with no further action.
+Manually in the browser: open the app, set the width parameter to a negative value, and confirm an inline error appears under that field and no chart update occurs. Restore a valid width and confirm the charts update automatically with no further action.
 
 ## Risks / edge cases
 

@@ -2,7 +2,7 @@
 
 ## Objective
 
-Render the model's curves — `λ(t)`, `μ(t)`, `Q(t)` — and its derived metrics (backlog `D`, the instant and value of `Q(t)`'s peak, the average of `λ(t)` over the critical interval) with Chart.js, reacting to changes in the dashboard's current parameter set.
+Render the model's curves — `λ(t)`, `μ(t)`, `Q(t)` — and its derived metrics (backlog `D`, the instant and value of `Q(t)`'s peak, the average of `λ(t)` over the critical interval) with Chart.js, reacting to changes in the current `SimulationResult`.
 
 ## Scope
 
@@ -19,24 +19,24 @@ Out of scope:
 
 ## Technical context
 
-Consumes the series produced by `demand-generator`, `queue-simulator`, and `integral-analysis-engine`, as orchestrated by `dashboard`. Chart.js is used directly, with no framework-specific wrapper, and updated imperatively from computed series — this keeps the charting layer decoupled from the framework's reactivity model.
+Consumes the `SimulationResult` produced by `simulation`, read directly from the parameter-form's simulation store, and the saved-scenario list read directly from the `scenario-comparison` store (see `parameter-form.spec.md` and `scenario-comparison.spec.md`) — each visualization component reads the stores itself rather than receiving the result/scenario list as props from a parent. Chart.js is used directly, with no framework-specific wrapper, and updated imperatively from computed series — this keeps the charting layer decoupled from the framework's reactivity model.
 
 ## Implementation
 
 - A function that updates existing Chart.js instances' datasets from newly computed series, called imperatively whenever the parameter set changes and produces new output — not a full chart re-creation on every update.
-- Thin Vue components responsible only for mounting/unmounting the canvas elements and invoking that update function; no reactive wrapper duplicating Chart.js's own state.
-- Lives under this slice's own feature directory in the project's feature-based source layout.
+- Thin Vue components responsible only for mounting/unmounting the canvas elements, reading the simulation and scenario-comparison stores, and invoking that update function; no reactive wrapper duplicating Chart.js's own state.
+- Lives in the feature layer of the project's layered source structure.
 
 ## Acceptance criteria
 
-- [ ] Changing a valid parameter in the dashboard updates the charts to reflect the new series, with no page reload.
+- [ ] Changing a valid parameter in the form updates the charts to reflect the new series, with no page reload.
 - [ ] The backlog `D` area is visually shaded over the critical interval.
 - [ ] Discrete Poisson-generated events are rendered as individual markers, visually distinguishable from the continuous `λ(t)` curve.
 - [ ] The displayed numeric metrics (`D`, `Q(t)`'s peak value and instant, average `λ(t)`) match the values returned by `queue-simulator`/`integral-analysis-engine` for the same parameter set.
 
 ## How to test
 
-Manually in the browser: load the dashboard with the default parameters (amplitude 140 orders/min, peak time 40 min, width 12 min, service rate 60 orders/min, horizon 90 min — see `dashboard.spec.md`) and confirm visually that `λ(t)` shows a Gaussian peak at `t = 40`, that `Q(t)` reaches its maximum after `t = 40`, and that the shaded `D` region approximately matches where `λ(t)` sits above the `μ(t) = 60` line.
+Manually in the browser: load the app with the default parameters (amplitude 140 orders/min, peak time 40 min, width 12 min, service rate 60 orders/min, horizon 90 min — see `parameter-form.spec.md`) and confirm visually that `λ(t)` shows a Gaussian peak at `t = 40`, that `Q(t)` reaches its maximum after `t = 40`, and that the shaded `D` region approximately matches where `λ(t)` sits above the `μ(t) = 60` line.
 
 ## Risks / edge cases
 

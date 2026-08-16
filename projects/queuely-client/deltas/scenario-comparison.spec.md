@@ -20,19 +20,19 @@ Out of scope:
 
 ## Technical context
 
-This is application state composing outputs already produced by `queue-simulator` and `dashboard` — it is not a fifth simulation module and doesn't reimplement any computation of its own; running multiple parameter sets side by side within one session is composition of the existing modules' outputs over time, nothing more.
+This is application state — a Pinia store — composing `SimulationResult` values already produced by `simulation`, as held by the parameter-form's simulation store (see `parameter-form.spec.md`). It is not a fifth simulation module and doesn't reimplement any computation of its own; running multiple parameter sets side by side within one session is composition of the existing modules' outputs over time, nothing more.
 
 ## Implementation
 
-- A composable holding a reactive list of saved scenarios, each a parameter set paired with a snapshot of its computed series and metrics.
-- A save action that pushes a deep, immutable copy of the current state — not a reference to the live reactive state — so later changes to the dashboard's parameters cannot mutate an already-saved scenario.
-- A component rendering the summary table and feeding each saved scenario's series into `visualization` for the overlay.
-- Lives under this slice's own feature directory in the project's feature-based source layout.
+- A Pinia store holding a reactive list of saved scenarios, each a parameter set paired with a snapshot of its computed series and metrics.
+- A save action that pushes a deep, immutable copy of the current `SimulationResult` — not a reference to the live reactive state — so later parameter changes cannot mutate an already-saved scenario.
+- A component rendering the summary table and feeding each saved scenario's series into `visualization` for the overlay — reads the store directly rather than receiving the scenario list through props.
+- Lives across two layers of the project's layered source structure: the reactive list and its color-palette helper in the application-state layer, the UI in the feature layer.
 
 ## Acceptance criteria
 
 - [ ] Saving the current scenario twice with two different parameter sets produces two independent list entries, each with its own frozen values.
-- [ ] Changing the dashboard's parameters after a save does not alter the values already saved (confirms the saved copy is deep, not a live reference).
+- [ ] Changing the parameter set after a save does not alter the values already saved (confirms the saved copy is deep, not a live reference).
 - [ ] Removing a saved scenario removes it from both the chart overlay and the summary table.
 - [ ] Reloading the page clears the list — expected, documented behavior, not a bug.
 
@@ -42,5 +42,5 @@ Manually in the browser: adjust parameters and save scenario A; adjust parameter
 
 ## Risks / edge cases
 
-- Saving a mutable reference instead of a deep copy of the parameter set/series is the most likely bug in this composable — it would silently corrupt already-saved scenarios as the dashboard's live state keeps changing.
+- Saving a mutable reference instead of a deep copy of the parameter set/series is the most likely bug in this store — it would silently corrupt already-saved scenarios as the live parameter state keeps changing.
 - An unbounded list can grow indefinitely across a very long session — accepted as a known, non-blocking risk given the overall application state is small.
