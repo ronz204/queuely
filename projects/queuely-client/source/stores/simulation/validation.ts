@@ -1,4 +1,4 @@
-import type { SimulationParameters } from "@shared/types";
+import type { SimulationParameters } from "@domain/simulation";
 
 export type RawParameterInput = {
   amplitude: string;

@@ -1,6 +1,6 @@
+import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
-import type { SimulationParameters, SimulationResult } from "@shared/types";
-import { runSimulation } from "./simulate";
+import { runSimulation, type SimulationParameters, type SimulationResult } from "@domain/simulation";
 import { type RawParameterInput, type ValidationErrors, validateParameters } from "./validation";
 
 const DEFAULT_PARAMETERS: SimulationParameters = {
@@ -14,7 +14,7 @@ const DEFAULT_PARAMETERS: SimulationParameters = {
 
 const DEBOUNCE_MS = 200;
 
-function toRaw(params: SimulationParameters): RawParameterInput {
+function toRawInput(params: SimulationParameters): RawParameterInput {
   return {
     amplitude: String(params.amplitude),
     peakTime: String(params.peakTime),
@@ -25,8 +25,8 @@ function toRaw(params: SimulationParameters): RawParameterInput {
   };
 }
 
-export function useSimulationParameters() {
-  const raw = reactive<RawParameterInput>(toRaw(DEFAULT_PARAMETERS));
+export const useSimulationStore = defineStore("simulation", () => {
+  const raw = reactive<RawParameterInput>(toRawInput(DEFAULT_PARAMETERS));
   const errors = ref<ValidationErrors>({});
   const result = ref<SimulationResult>(runSimulation(DEFAULT_PARAMETERS));
 
@@ -53,4 +53,4 @@ export function useSimulationParameters() {
   const isFrozen = computed(() => Object.keys(errors.value).length > 0);
 
   return { raw, errors, result, isFrozen, setField };
-}
+});

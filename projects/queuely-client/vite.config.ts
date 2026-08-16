@@ -12,6 +12,7 @@ export default defineConfig({
       "@designs": "/source/designs",
       "@features": "/source/features",
       "@domain": "/source/domain",
+      "@stores": "/source/stores",
     },
   },
 });
