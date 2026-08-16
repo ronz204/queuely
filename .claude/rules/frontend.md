@@ -6,9 +6,21 @@ paths:
 
 # Frontend Conventions
 
-Conventions for Vue 3 + TypeScript + Tailwind CSS code. The goal is readable, approachable code that stays concise — favor clarity over cleverness, and keep components small enough that their responsibility is obvious from a glance. This intentionally says nothing about directory/folder layout — that convention doesn't exist yet and will be documented once a real pattern emerges from actual code, not decided upfront.
+Conventions for Vue 3 + TypeScript + Tailwind CSS code, including the project's source-layout convention. The goal is readable, approachable code that stays concise — favor clarity over cleverness, and keep components small enough that their responsibility is obvious from a glance.
 
 ---
+
+## Source Layout
+
+Source is organized into top-level folders by layer, named after the role each one plays: `domain/`, `stores/`, `features/`, `components/`, `app/`.
+
+- **Layer by dependency direction, innermost to outermost: `domain` → `stores` → `features` → `app`.** `components` sits alongside as a dependency-free leaf every other layer may use. A layer may only import from a layer at or inside its own level — `domain` never imports from `stores`/`features`/`app`; `stores` may import from `domain` but never from `features`/`app`; `features` may import from `stores`, `domain`, and `components`; `app` composes `features` and nothing imports from `app`. This makes the architecture legible from the folder structure alone — knowing which top-level folder a file lives in tells you what it's allowed to depend on, without opening it.
+- **`domain/` holds pure business/math logic only** — no Vue, no reactivity, no I/O. A function here takes a value and returns a value; if it needs `ref`/`reactive`/a store, it doesn't belong here.
+- **`stores/` holds Pinia stores** — anything reactive that more than one component needs to read, or that outlives a single component's lifecycle. A composable that only wraps one component's local state stays inside that component; once a piece of state is instantiated once and read from several unrelated components, it belongs in a store, not a composable.
+- **`features/` holds UI only** — Vue components plus any helper tightly coupled to that UI with no other consumer (e.g. a form's field-label metadata). No shared reactive state and no domain math lives here. A feature component reads the stores and domain types it needs directly instead of receiving them as props from a parent — avoid re-threading store state through props/emits when the component can read the store itself.
+- **`components/` is the generic design system** — reusable UI primitives with no awareness of any domain concept. A file here should be usable in a project with a completely different data model without modification.
+- **`app/` is the composition root** — the single top-level component (and its bootstrap file) that assembles `features/` into the actual page. It holds layout only, no business logic, no reactive state of its own.
+- **Each top-level concern folder exports its public surface through an `index.ts` barrel** (or a single component file directly, for a one-component concern) — consumers import from the folder, not from a specific file inside it, so a file can be renamed or split without breaking every caller.
 
 ## Component Authoring
 
@@ -48,6 +60,5 @@ Conventions for Vue 3 + TypeScript + Tailwind CSS code. The goal is readable, ap
 
 ## Non-goals
 
-- No directory/file-organization convention is defined here — that will be documented separately once a real pattern exists in actual code, not decided in advance of writing any.
-- No state-management library convention — there's no external state library in use; component-local reactivity and composables are the state layer for now.
+- The layering convention doesn't mandate a store per feature — most features need at most one, and a feature with no state shared across components or outliving its own lifecycle needs no store at all; local component reactivity (`ref`/`reactive`/`computed`) is still correct for state that's genuinely local.
 - No testing convention — automated tests aren't part of the current scope, so this rule doesn't prescribe how components should be structured for testability.
