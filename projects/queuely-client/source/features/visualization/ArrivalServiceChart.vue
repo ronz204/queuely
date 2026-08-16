@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import { Chart } from "chart.js";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import LegendSwatch from "@designs/LegendSwatch.vue";
-import type { SavedScenario, SimulationResult } from "@shared/types";
+import { useScenarioComparisonStore } from "@stores/scenario-comparison";
+import { useSimulationStore } from "@stores/simulation";
+import LegendSwatch from "@components/LegendSwatch.vue";
 import { buildArrivalServiceChartData, type Point } from "./build-chart-data";
 import { CHART_COLORS } from "./chart-colors";
 import { buildBaseChartOptions } from "./chart-options";
 import "./register-chart";
 
-type Props = {
-  result: SimulationResult;
-  scenarios: SavedScenario[];
-  showEvents: boolean;
-  frozen: boolean;
-};
-
-const props = defineProps<Props>();
+const simulationStore = useSimulationStore();
+const scenarioStore = useScenarioComparisonStore();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chart: Chart<"line" | "scatter", (Point | null)[]> | null = null;
 
@@ -24,16 +19,16 @@ onMounted(() => {
 
   chart = new Chart<"line" | "scatter", (Point | null)[]>(canvasRef.value, {
     type: "line",
-    data: buildArrivalServiceChartData(props.result, props.scenarios, props.showEvents),
+    data: buildArrivalServiceChartData(simulationStore.result, scenarioStore.scenarios, true),
     options: buildBaseChartOptions(),
   });
 });
 
 watch(
-  () => [props.result, props.scenarios, props.showEvents] as const,
+  () => [simulationStore.result, scenarioStore.scenarios] as const,
   () => {
     if (!chart) return;
-    chart.data = buildArrivalServiceChartData(props.result, props.scenarios, props.showEvents);
+    chart.data = buildArrivalServiceChartData(simulationStore.result, scenarioStore.scenarios, true);
     chart.update();
   },
 );
@@ -52,13 +47,13 @@ onBeforeUnmount(() => {
         <LegendSwatch :color="CHART_COLORS.arrival">λ(t)</LegendSwatch>
         <LegendSwatch :color="CHART_COLORS.service" shape="dashed">μ(t)</LegendSwatch>
         <LegendSwatch :color="CHART_COLORS.backlog" shape="square">backlog D</LegendSwatch>
-        <LegendSwatch v-if="showEvents" :color="CHART_COLORS.event" shape="dot">eventos Poisson</LegendSwatch>
-        <LegendSwatch v-for="scenario in scenarios" :key="scenario.id" :color="scenario.color">{{ scenario.label }}</LegendSwatch>
+        <LegendSwatch :color="CHART_COLORS.event" shape="dot">eventos Poisson</LegendSwatch>
+        <LegendSwatch v-for="scenario in scenarioStore.scenarios" :key="scenario.id" :color="scenario.color">{{ scenario.label }}</LegendSwatch>
       </div>
     </div>
     <div class="relative">
       <canvas ref="canvasRef" class="block h-chart w-full rounded-lg"></canvas>
-      <div v-if="frozen" class="pointer-events-none absolute inset-0 rounded-lg bg-ink-950/55"></div>
+      <div v-if="simulationStore.isFrozen" class="pointer-events-none absolute inset-0 rounded-lg bg-ink-950/55"></div>
     </div>
   </div>
 </template>

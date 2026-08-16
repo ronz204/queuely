@@ -1,4 +1,5 @@
-import type { SavedScenario, SimulationResult } from "@shared/types";
+import type { SimulationResult } from "@domain/simulation";
+import type { SavedScenario } from "@stores/scenario-comparison";
 import { CHART_COLORS } from "./chart-colors";
 
 export type Point = { x: number; y: number };

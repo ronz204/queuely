@@ -1,18 +1,9 @@
 <script setup lang="ts">
-import type { SavedScenario } from "@shared/types";
+import { useScenarioComparisonStore } from "@stores/scenario-comparison";
+import { useSimulationStore } from "@stores/simulation";
 
-type Props = {
-  scenarios: SavedScenario[];
-  disabled: boolean;
-};
-
-type Emits = {
-  save: [];
-  delete: [id: string];
-};
-
-defineProps<Props>();
-const emit = defineEmits<Emits>();
+const simulationStore = useSimulationStore();
+const scenarioStore = useScenarioComparisonStore();
 </script>
 
 <template>
@@ -24,18 +15,18 @@ const emit = defineEmits<Emits>();
       </div>
       <button
         type="button"
-        :disabled="disabled"
+        :disabled="simulationStore.isFrozen"
         class="cursor-pointer whitespace-nowrap rounded-md border border-arrival/50 bg-arrival/15 px-4 py-2 text-xs font-semibold text-arrival transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
-        @click="emit('save')"
+        @click="scenarioStore.saveScenario(simulationStore.result)"
       >
         Guardar escenario actual
       </button>
     </div>
 
-    <template v-if="scenarios.length > 0">
+    <template v-if="scenarioStore.scenarios.length > 0">
       <div class="flex flex-wrap gap-2">
         <div
-          v-for="scenario in scenarios"
+          v-for="scenario in scenarioStore.scenarios"
           :key="scenario.id"
           class="flex items-center gap-2 rounded-md border border-ink-600 bg-ink-800 px-2.5 py-1.5"
         >
@@ -44,7 +35,7 @@ const emit = defineEmits<Emits>();
           <button
             type="button"
             class="cursor-pointer px-0.5 font-mono text-sm font-semibold text-ink-500 hover:text-ink-200"
-            @click="emit('delete', scenario.id)"
+            @click="scenarioStore.deleteScenario(scenario.id)"
           >
             ✕
           </button>
@@ -63,7 +54,7 @@ const emit = defineEmits<Emits>();
             </tr>
           </thead>
           <tbody>
-            <tr v-for="scenario in scenarios" :key="scenario.id" class="border-b border-ink-800">
+            <tr v-for="scenario in scenarioStore.scenarios" :key="scenario.id" class="border-b border-ink-800">
               <td class="flex items-center gap-1.5 px-1.5 py-2">
                 <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: scenario.color }"></span>
                 {{ scenario.label }}

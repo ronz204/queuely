@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { Chart } from "chart.js";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import LegendSwatch from "@designs/LegendSwatch.vue";
-import type { SavedScenario, SimulationResult } from "@shared/types";
+import { useScenarioComparisonStore } from "@stores/scenario-comparison";
+import { useSimulationStore } from "@stores/simulation";
+import LegendSwatch from "@components/LegendSwatch.vue";
 import { buildQueueChartData, type Point } from "./build-chart-data";
 import { CHART_COLORS } from "./chart-colors";
 import { buildBaseChartOptions } from "./chart-options";
 import "./register-chart";
 
-type Props = {
-  result: SimulationResult;
-  scenarios: SavedScenario[];
-  frozen: boolean;
-};
-
-const props = defineProps<Props>();
+const simulationStore = useSimulationStore();
+const scenarioStore = useScenarioComparisonStore();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chart: Chart<"line" | "scatter", Point[]> | null = null;
 
@@ -23,16 +19,16 @@ onMounted(() => {
 
   chart = new Chart<"line" | "scatter", Point[]>(canvasRef.value, {
     type: "line",
-    data: buildQueueChartData(props.result, props.scenarios),
+    data: buildQueueChartData(simulationStore.result, scenarioStore.scenarios),
     options: buildBaseChartOptions(),
   });
 });
 
 watch(
-  () => [props.result, props.scenarios] as const,
+  () => [simulationStore.result, scenarioStore.scenarios] as const,
   () => {
     if (!chart) return;
-    chart.data = buildQueueChartData(props.result, props.scenarios);
+    chart.data = buildQueueChartData(simulationStore.result, scenarioStore.scenarios);
     chart.update();
   },
 );
@@ -49,12 +45,12 @@ onBeforeUnmount(() => {
       <h2 class="text-sm font-semibold text-ink-50">Tamaño de cola Q(t)</h2>
       <div class="flex flex-wrap gap-3.5">
         <LegendSwatch :color="CHART_COLORS.queue">Q(t)</LegendSwatch>
-        <LegendSwatch v-for="scenario in scenarios" :key="scenario.id" :color="scenario.color">{{ scenario.label }}</LegendSwatch>
+        <LegendSwatch v-for="scenario in scenarioStore.scenarios" :key="scenario.id" :color="scenario.color">{{ scenario.label }}</LegendSwatch>
       </div>
     </div>
     <div class="relative">
       <canvas ref="canvasRef" class="block h-chart-secondary w-full rounded-lg"></canvas>
-      <div v-if="frozen" class="pointer-events-none absolute inset-0 rounded-lg bg-ink-950/55"></div>
+      <div v-if="simulationStore.isFrozen" class="pointer-events-none absolute inset-0 rounded-lg bg-ink-950/55"></div>
     </div>
   </div>
 </template>
