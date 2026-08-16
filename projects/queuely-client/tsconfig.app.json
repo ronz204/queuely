@@ -19,10 +19,10 @@
     /* Resolution */
     "paths": {
       "@assets/*": ["./source/assets/*"],
-      "@designs/*": ["./source/designs/*"],
       "@features/*": ["./source/features/*"],
       "@domain/*": ["./source/domain/*"],
       "@stores/*": ["./source/stores/*"],
+      "@components/*": ["./source/components/*"],
     },
   },
 }
