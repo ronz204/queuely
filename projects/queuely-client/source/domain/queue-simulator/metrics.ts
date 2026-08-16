@@ -1,4 +1,4 @@
-import { averageValue, integrate, type IntegrationMethod } from "@features/integral-analysis-engine";
+import { averageValue, integrate, type IntegrationMethod } from "@domain/integral-analysis-engine";
 import type { CriticalInterval } from "./critical-interval";
 import type { RateFunction } from "./queue-series";
 

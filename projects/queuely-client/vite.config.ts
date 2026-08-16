@@ -11,6 +11,7 @@ export default defineConfig({
       "@shared": "/source/shared",
       "@designs": "/source/designs",
       "@features": "/source/features",
+      "@domain": "/source/domain",
     },
   },
 });
