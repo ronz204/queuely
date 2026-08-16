@@ -7,7 +7,6 @@ export default defineConfig({
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
-      "@assets": "/source/assets",
       "@features": "/source/features",
       "@domain": "/source/domain",
       "@stores": "/source/stores",

@@ -18,7 +18,6 @@
 
     /* Resolution */
     "paths": {
-      "@assets/*": ["./source/assets/*"],
       "@features/*": ["./source/features/*"],
       "@domain/*": ["./source/domain/*"],
       "@stores/*": ["./source/stores/*"],
