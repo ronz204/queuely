@@ -50,7 +50,7 @@ Everything in this diagram runs in one browser tab, in one process. There is no 
 | Build tool | Vite | Standard build tool for Vue 3 projects; fast dev server, minimal configuration for a project this size. |
 | Language | TypeScript | The simulation modules pass structured data between each other (parameter sets, time series, interval bounds) — static typing catches shape mismatches between modules at build time rather than at runtime, which matters more here than in the UI layer alone. |
 | Charting | Chart.js, used directly (no framework-specific wrapper) | Charts are updated imperatively from computed series rather than through a reactive wrapper component — this keeps the charting layer decoupled from the framework's reactivity model, appropriate for a well-understood, self-contained library. |
-| State management | Framework-native reactivity, no external state library | The state involved — the current parameter set, the computed series, a list of saved scenarios for comparison — is small and doesn't justify a dedicated state-management dependency. |
+| State management | Pinia | The current parameter set, its computed result, and the list of saved scenarios are each read directly by several independent components (the form, both charts, the metrics panel, the comparison table) rather than by one parent that owns and threads them through — a dedicated store keeps that fan-out from turning into prop/emit relay chains, at a cost (an extra dependency) that's justified once more than a couple of components need the same reactive state. |
 | Persistence | None | See Non-goals. |
 | Backend | None | See Core Architectural Decision above. |
 
