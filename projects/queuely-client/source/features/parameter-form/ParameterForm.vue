@@ -1,19 +1,9 @@
 <script setup lang="ts">
-import TextField from "@designs/TextField.vue";
+import { useSimulationStore } from "@stores/simulation";
+import TextField from "@components/TextField.vue";
 import { PARAMETER_FIELD_DEFINITIONS } from "./field-definitions";
-import type { RawParameterInput, ValidationErrors } from "./validation";
 
-type Props = {
-  raw: RawParameterInput;
-  errors: ValidationErrors;
-};
-
-type Emits = {
-  change: [key: keyof RawParameterInput, value: string];
-};
-
-defineProps<Props>();
-const emit = defineEmits<Emits>();
+const simulationStore = useSimulationStore();
 </script>
 
 <template>
@@ -29,9 +19,9 @@ const emit = defineEmits<Emits>();
       :label="field.label"
       :symbol="field.symbol"
       :unit="field.unit"
-      :model-value="raw[field.key]"
-      :error="errors[field.key]"
-      @update:model-value="(value) => emit('change', field.key, value)"
+      :model-value="simulationStore.raw[field.key]"
+      :error="simulationStore.errors[field.key]"
+      @update:model-value="(value) => simulationStore.setField(field.key, value)"
     />
   </aside>
 </template>

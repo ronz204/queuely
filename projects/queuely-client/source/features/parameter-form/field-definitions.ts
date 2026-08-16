@@ -1,4 +1,4 @@
-import type { RawParameterInput } from "./validation";
+import type { RawParameterInput } from "@stores/simulation";
 
 export type ParameterFieldDefinition = {
   key: keyof RawParameterInput;
