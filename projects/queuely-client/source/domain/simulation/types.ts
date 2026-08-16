@@ -1,5 +1,5 @@
-import type { ArrivalEvent } from "@features/demand-generator";
-import type { CriticalInterval } from "@features/queue-simulator";
+import type { ArrivalEvent } from "@domain/demand-generator";
+import type { CriticalInterval } from "@domain/queue-simulator";
 
 export type SimulationParameters = {
   amplitude: number;
@@ -31,11 +31,4 @@ export type SimulationResult = {
   events: ArrivalEvent[];
   metrics: SimulationMetrics;
   criticalInterval: CriticalInterval | null;
-};
-
-export type SavedScenario = {
-  id: string;
-  label: string;
-  color: string;
-  result: SimulationResult;
 };

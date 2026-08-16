@@ -1,12 +1,12 @@
-import { arrivalRate, generateArrivalEvents } from "@features/demand-generator";
+import { arrivalRate, generateArrivalEvents } from "@domain/demand-generator";
 import {
   averageArrivalRateDuringCriticalInterval,
   computeBacklog,
   computeQueueSeries,
   findCriticalInterval,
   serviceRate as constantServiceRate,
-} from "@features/queue-simulator";
-import type { SimulationParameters, SimulationResult } from "@shared/types";
+} from "@domain/queue-simulator";
+import type { SimulationParameters, SimulationResult } from "./types";
 
 function buildTimeGrid(horizon: number, points: number): number[] {
   const step = horizon / points;
