@@ -1,8 +1,16 @@
+import { defineStore } from "pinia";
 import { ref, toRaw } from "vue";
-import { scenarioColor } from "@shared/scenario-palette";
-import type { SavedScenario, SimulationResult } from "@shared/types";
+import type { SimulationResult } from "@domain/simulation";
+import { scenarioColor } from "./palette";
 
-export function useScenarioComparison() {
+export type SavedScenario = {
+  id: string;
+  label: string;
+  color: string;
+  result: SimulationResult;
+};
+
+export const useScenarioComparisonStore = defineStore("scenario-comparison", () => {
   const scenarios = ref<SavedScenario[]>([]);
   let scenarioCounter = 0;
 
@@ -16,8 +24,8 @@ export function useScenarioComparison() {
       // clone a Proxy directly ("could not be cloned"), so unwrap to the plain object first.
       result: structuredClone(toRaw(result)),
     };
-    // Reassign instead of mutating in place: the chart components watch `props.scenarios` by
-    // reference, and Vue's shallow prop reactivity only notifies on a reference change — an
+    // Reassign instead of mutating in place: the chart components watch `scenarios` by
+    // reference, and Vue's shallow reactivity only notifies on a reference change — an
     // in-place `.push()` left the array identity unchanged, so saved scenarios never reached
     // the chart overlay even though the list/table (driven by v-for, which deep-tracks) updated.
     scenarios.value = [...scenarios.value, scenario];
@@ -28,4 +36,4 @@ export function useScenarioComparison() {
   }
 
   return { scenarios, saveScenario, deleteScenario };
-}
+});
