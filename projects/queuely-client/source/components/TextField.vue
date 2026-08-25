@@ -30,7 +30,7 @@ const emit = defineEmits<Emits>();
         inputmode="decimal"
         :value="modelValue"
         class="min-w-0 flex-1 bg-transparent py-2.5 font-mono text-sm font-medium text-ink-50 outline-none"
-        @change="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       />
       <span
         v-if="unit"
