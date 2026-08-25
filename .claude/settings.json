@@ -25,5 +25,8 @@
       "Bash(git push *)",
       "Bash(git pull *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }
