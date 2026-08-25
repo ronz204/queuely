@@ -12,12 +12,12 @@ import "./register-chart";
 const simulationStore = useSimulationStore();
 const scenarioStore = useScenarioComparisonStore();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-let chart: Chart<"line" | "scatter", (Point | null)[]> | null = null;
+let chart: Chart<"line" | "scatter", Point[]> | null = null;
 
 onMounted(() => {
   if (!canvasRef.value) return;
 
-  chart = new Chart<"line" | "scatter", (Point | null)[]>(canvasRef.value, {
+  chart = new Chart<"line" | "scatter", Point[]>(canvasRef.value, {
     type: "line",
     data: buildArrivalServiceChartData(simulationStore.result, scenarioStore.scenarios, true),
     options: buildBaseChartOptions(),

@@ -2,21 +2,25 @@ import type { SimulationResult } from "@domain/simulation";
 import type { SavedScenario } from "@stores/scenario-comparison";
 import { CHART_COLORS } from "./chart-colors";
 
-export type Point = { x: number; y: number };
+export type Point = { x: number; y: number | null };
 
 function toPoints(times: number[], values: number[]): Point[] {
   return times.map((t, i) => ({ x: t, y: values[i] }));
 }
 
-function backlogAreaPoints(result: SimulationResult): (Point | null)[] {
+/**
+ * Every entry keeps the `{ x, y }` shape (`y: null` outside the critical interval) rather than
+ * a bare `null`: Chart.js infers a dataset's parsing strategy from its very first data point, so
+ * a leading bare `null` makes it misdetect the whole series as primitive values and silently
+ * drop every later `{ x, y }` point too — which is what left the fill area empty.
+ */
+function backlogAreaPoints(result: SimulationResult): Point[] {
   const { criticalInterval, series } = result;
-  if (!criticalInterval) {
-    return series.times.map(() => null);
-  }
 
-  return series.times.map((t, i) =>
-    t >= criticalInterval.start && t <= criticalInterval.end ? { x: t, y: series.arrivalRate[i] } : null,
-  );
+  return series.times.map((t, i) => ({
+    x: t,
+    y: criticalInterval && t >= criticalInterval.start && t <= criticalInterval.end ? series.arrivalRate[i] : null,
+  }));
 }
 
 /**
